@@ -1,5 +1,5 @@
 ```markdown
-# V15 Eisler Strategy with Automatic Optimizer Pipeline
+# V5 Eisler Strategy with Automatic Optimizer Pipeline
 
 An advanced, low-latency quantitative trading framework designed for NinjaTrader 8 (optimized for Nasdaq-100 / NQ 1-minute Volumetric bars) and tightly integrated with an automated, ultra-fast Python backtest optimization pipeline[cite: 1]. 
 
@@ -46,7 +46,7 @@ Youtube video:
 ### 1. High-Performance Python Simulator (`run_optimizer_pipeline.py`)
 This script acts as the heavy-lifting simulation engine of the framework[cite: 1]. Instead of relying on slow platform-based backtests, it implements a standalone, raw mathematical model of the strategy in Python to maximize computing speed[cite: 1].
 * **Binary Stream Parsing:** It processes custom binary files (`market.tape`, `bars.tape`, etc.) generated from real market history[cite: 1]. It parses these streams utilizing direct byte-offset structures for maximum I/O performance[cite: 1].
-* **V15 Timestamp Fallback Heuristics:** Implements an aggressive recovery mode (`parse_market_tape_samples_v15`)[cite: 1]. If the replay data contains corrupted or out-of-order timestamps from the platform, the parser bypasses the error and falls back to calculating structural mid-prices directly from the payload[cite: 1]. This prevents simulation crashes during volatile market periods[cite: 1].
+* **V5 Timestamp Fallback Heuristics:** Implements an aggressive recovery mode (`parse_market_tape_samples_V5`)[cite: 1]. If the replay data contains corrupted or out-of-order timestamps from the platform, the parser bypasses the error and falls back to calculating structural mid-prices directly from the payload[cite: 1]. This prevents simulation crashes during volatile market periods[cite: 1].
 * **Multi-Fold Validation Grid:** Automatically splits data into 6 distinct validation folds[cite: 1]. A parameter set is only considered valid if it generates a minimum of 15 realized trades per fold, preventing the strategy from overfitting to specific market anomalies[cite: 1].
 
 ### 2. Strategy & Execution Engine (`eislerstrategy.cs`)
@@ -100,7 +100,7 @@ The Python pipeline and optimization scripts must run in your dedicated orchestr
 
 * **Optimization Engine & Documentation:**
     * `run_optimizer_pipeline.py`
-    * `README_EISLER_V15_BALANCED_REAL_TAPE_FIX.md`
+    * `README_EISLER_V5_BALANCED_REAL_TAPE_FIX.md`
     * ──> Move both files to: `C:\Users\<YourWindowsUsername>\Documents\EislerReplayOrchestratedBridge\`
 
 ### 🗂️ Target Architecture Overview
@@ -111,7 +111,7 @@ Once everything is deployed, your execution workspace will structure itself as f
 C:\Users<YourWindowsUsername>\Documents\EislerReplayOrchestratedBridge
 
 ├── run_optimizer_pipeline.py
-├── README_EISLER_V15_BALANCED_REAL_TAPE_FIX.md
+├── README_EISLER_V5_BALANCED_REAL_TAPE_FIX.md
 ├── settings.txt                              <── Generated dynamically by Python
 └── [Data_Directory]\                         <── Targeted binary streaming path
 ├── market.tape
@@ -136,10 +136,10 @@ C:\Users<YourWindowsUsername>\Documents\EislerReplayOrchestratedBridge
 
 ## ⚠️ Current Limitations & Roadmap for Future Development
 
-While the V15 framework achieves ultra-fast mathematical optimization and seamless dynamic parameters loading, continuous improvement under live market regimes requires addressing specific structural and architectural limits.
+While the V5 framework achieves ultra-fast mathematical optimization and seamless dynamic parameters loading, continuous improvement under live market regimes requires addressing specific structural and architectural limits.
 
 ### 1. Known Bottlenecks & Limitations
-* **Single-Threaded I/O Block on Raw Tape Iteration:** Although the Python pipeline handles 100k sweeps in under 4 minutes, the binary parser (`parse_market_tape_samples_v15`) still operates sequentially on the raw file streams. High-volatility days with massive tick-counts bottleneck the I/O processing thread.
+* **Single-Threaded I/O Block on Raw Tape Iteration:** Although the Python pipeline handles 100k sweeps in under 4 minutes, the binary parser (`parse_market_tape_samples_V5`) still operates sequentially on the raw file streams. High-volatility days with massive tick-counts bottleneck the I/O processing thread.
 * **Deterministic Overfitting on Volumetric Profiles:** The 6-fold validation grid protects against standard statistical overfitting, but the deterministic simulation does not account for execution slippage or queue position degradation inside the volumetric price levels.
 * **Lack of Latency-Arbitrage Benchmarking:** The dynamic gating engine blocks entries during high-jitter phases, but it cannot predict sub-millisecond execution delays on the broker side under highly congested network loops.
 
