@@ -2,6 +2,9 @@
 
 An experimental **NinjaTrader 8 automated trading strategy** based on an Eisler-style event-impact model, adaptive entry gating, latency-aware signal confirmation, and multi-layer risk management.
 
+<img width="2816" height="1536" alt="Gemini_Generated_Image_cbuzhfcbuzhfcbuz" src="https://github.com/user-attachments/assets/5d165f87-b6a1-4ec9-8cf2-82c389c65b61" />
+
+
 The strategy is designed for advanced research into short-horizon order-flow prediction, event-response modeling, adaptive execution, and intraday futures trading system development.
 
 > **Disclaimer**  
