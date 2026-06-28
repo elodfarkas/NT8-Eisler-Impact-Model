@@ -1,4 +1,4 @@
-```markdown
+
 # V5 Eisler Strategy with Automatic Optimizer Pipeline
 
 An advanced, low-latency quantitative trading framework designed for NinjaTrader 8 (optimized for Nasdaq-100 / NQ 1-minute Volumetric bars) and tightly integrated with an automated, ultra-fast Python backtest optimization pipeline[cite: 1]. 
@@ -9,24 +9,11 @@ This repository bridges the gap between sophisticated microstructure-based execu
 
 ## System Architecture & Data Flow
 
+<img width="2816" height="1536" alt="Gemini_Generated_Image_bggh2dbggh2dbggh" src="https://github.com/user-attachments/assets/fa41cf5e-2e8f-435b-a672-668267352d9a" />
+
 The system operates in a closed-loop pipeline where data collection, mathematical simulation, orchestration, and state reinforcement happen asynchronously[cite: 1].
 
 
-```
-
-```mermaid
-graph TD
-    MOF([Market Order Flow]) --> Exporter[EislerPhase1DataExporter <br><i>Generates optimized binary data</i>]
-    Launcher[EislerReplayOptimizerLauncher] --> |Ultra-dense .tape files| Pipeline[run_optimizer_pipeline.py <br><i>High-speed Python Simulator</i>]
-    Pipeline --> |Outputs optimal settings.txt| Orchestrator[REplayOptimizerOrchestrator]
-    Orchestrator --> AutoReload[AutoReloadSettings <br><i>Hot-loads into Live Strategy</i>]
-    AutoReload --> Strategy[EislerStrategy <br><i>Execution Guard & Risk Engine</i>]
-
-    style MOF fill:#f9f,stroke:#333,stroke-width:2px
-    style Pipeline fill:#bbf,stroke:#333,stroke-width:2px
-    style Strategy fill:#bfb,stroke:#333,stroke-width:2px
-
-```
 
 ---
 
