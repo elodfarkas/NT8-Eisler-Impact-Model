@@ -1,35 +1,219 @@
-# NT8-Eisler-Impact-Model
-Advanced event-impact algorithmic trading strategy for NinjaTrader 8. Features dynamic regime switching, recursive least squares (RLS) gap correction, and latency-protected automated execution using C# and NQ volumetric order flow.
+# Eisler Framework – Extended Version
 
-Files:
-V1:eisler950.cs
-V2:EislerCSVdata.zip
+<img width="2816" height="1536" alt="nt8v2" src="https://github.com/user-attachments/assets/21e56bfa-fc13-4e00-bceb-cdc9116d9beb" />
 
-# NinjaTrader 8: Enhanced Eisler Event-Impact Strategy
 
-This repository contains an advanced algorithmic trading strategy for NinjaTrader 8. It implements an enhanced Eisler-style event-impact model designed for high-frequency data environments, operating entirely without Level II (MarketDepth) dependencies. 
+## Overview
 
-The strategy is optimized for NQ (Nasdaq 100) 1-minute Volumetric bars (Order Flow+) utilizing Level 1 Bid/Ask/Last dynamics.
+This repository contains an extended and modularized evolution of the original `eisler950` strategy for NinjaTrader 8.
 
-## Core Enhancements
-This model introduces several structural improvements to standard event-impact trading logic:
-1. Regime Switching: Dynamically switches between Large-tick and Small-tick regimes based on spread-one probabilities.
-2. Baseline ΔRπ (EWMA): Tracks the realized gap per price-changing event type using an Exponentially Weighted Moving Average.
-3. Gap-Flex Correction: Utilizes a Recursive Least Squares (RLS) feature set with three decaying states to correct small-tick variances.
-4. Induced-Pattern Filters: Features a refill-trap gate to filter out deceptive order book refills and prevent poor entries.
-5. Concave Impact Sizing: Dynamically adjusts position sizing based on a volumetric activity proxy.
+The original `eisler950` base version was implemented as a single strategy file built around an Eisler-style event-impact model using **L1 Bid/Ask/Last data** together with **Volumetric bars**, without relying on Level II / `OnMarketDepth()` data. Its core already included regime switching, ΔRπ baseline estimation, gap-flex state variables, refill-trap entry filtering, dynamic sizing, and RLS-based prediction.
 
-## Robustness & Execution
-To survive in live market conditions, the script includes built-in latency and jitter protection:
-Asynchronous Data Handling: Tracks market data inter-arrival times to calculate effective latency and P95 jitter metrics.
-Dynamic Gating: Automatically blocks entries if the data feed becomes stale or if quote jitter exceeds acceptable thresholds.
-Signal Confirmation: Requires multi-tick signal stability to prevent execution on micro-second phantom spikes.
+The current version keeps that original modeling philosophy, but expands it into a broader framework with three main components:
 
-## Setup Requirements
-Platform: NinjaTrader 8
-Data Feed: Tick Replay MUST be enabled for historical backtesting and Market Replay.
-Bar Type: 1-minute Volumetric Bars (DeltaType = BidAsk, TicksPerLevel = 1).
+- a custom **BarsType**
+- a dedicated **diagnostics indicator**
+- and a significantly extended **strategy implementation**
 
-## References & Academic Foundation
-The core logic of this strategy is heavily inspired by the quantitative research on market microstructure, specifically the analysis of how order book events (market orders, limit orders, and cancellations) impact prices.
-Primary Literature: Eisler, Z., Bouchaud, J.-P., & Kockelkoren, J. (2010). *The price impact of order book events: market orders, limit orders and cancellations*. Quantitative Finance. [arXiv:0904.0900](https://arxiv.org/abs/0904.0900)
+The goal of this newer version is not to replace the original idea, but to turn it into a more transparent, modular, and execution-aware framework that is easier to validate, debug, and extend.
+
+---
+
+## What Changed vs `eisler950`
+
+The original `eisler950` was primarily a **single-file strategy implementation**. It handled event construction, volumetric feature extraction, regime detection, prediction logic, entry gating, and a relatively simple execution workflow inside one strategy class.
+
+The new version introduces a much more **modular architecture**. Instead of concentrating all logic inside one file, the framework is now split into:
+
+- a custom `EislerBarType`
+- an `EislerDiagnostics` indicator
+- and an upgraded `eisler950ALLDAY` strategy
+
+One of the biggest changes is the addition of **stateful price-level memory**.  
+The base strategy worked with volumetric bar aggregates and an event stream, but it did not maintain a dedicated custom BarsType with persistent per-price state. In the new framework, the bar type stores and updates price-level variables such as:
+
+- buy/sell volume
+- aggressive buy/sell volume
+- touch count
+- sweep count
+- refill count
+- absorption count
+- trap count
+
+On top of those, it also derives higher-level scores and probabilities such as:
+
+- absorption score
+- refill score
+- sweep probability
+- continuation probability
+- mean reversion probability
+- revisit probability
+- queue resiliency
+- impact memory
+- local volatility
+
+This gives the upgraded framework a much richer market microstructure representation than the original `eisler950` base version.
+
+Another major improvement is the introduction of a dedicated **diagnostics layer**.  
+The new `EislerDiagnostics` indicator allows the internal state of the custom BarsType to be inspected directly on chart. It can display flow state, footprint statistics, price-level memory, absorption/trap intensity, sweep/refill activity, regime context, and other diagnostic values. This makes the system much easier to debug and validate during replay or live testing.
+
+The **predictive model itself remains aligned with the original concept**. The upgraded strategy still preserves the key logic of the base version, including:
+
+- large-tick vs small-tick regime detection
+- ΔRπ baseline gap estimation
+- gap-flex state variables
+- refill-trap entry filtering
+- activity-aware dynamic sizing
+- RLS-based next-move prediction
+
+This means the extended version is not a rewrite of the original model, but a structured expansion of it.
+
+Where the new version changes the most is in **execution and risk management**.  
+The original base version relied on a more standard managed stop-loss / profit-target workflow. The newer implementation introduces a more advanced and explicit execution safety layer, including:
+
+- simulated stop-loss handling
+- trailing stop logic
+- catastrophic stop placement
+- retry logic for failed exits
+- unmanaged emergency exits
+- optional account flatten fallback
+- detailed risk-state tracking
+
+This is implemented through a dedicated **risk exit state machine**, which makes exit behavior more explicit, auditable, and resilient under live or replay conditions.
+
+A further extension is the introduction of **CSV trade lifecycle export**.  
+The newer version can record detailed trade data for post-trade analysis, including:
+
+- entry and exit snapshots
+- open PnL progression
+- max favorable / max adverse excursion
+- trailing-stop movement history
+- giveback statistics
+- risk state and exit reason
+- execution diagnostics
+
+Compared with the original `eisler950`, this provides a much stronger research and validation workflow.
+
+In short, the current framework keeps the original `eisler950` predictive core, but adds:
+
+- modular design
+- persistent price-level memory
+- diagnostics tooling
+- stronger execution control
+- more advanced risk handling
+- deeper trade observability
+
+---
+
+## Architecture
+
+The framework is organized into three main layers:
+
+### 1. `EislerBarType`
+This custom BarsType is responsible for building and maintaining **stateful order-flow memory at the price-level**.
+
+Its role includes:
+- tracking per-price trading activity
+- updating sweep / refill / absorption / trap state
+- maintaining persistent price-level memory across bar formation
+- producing aggregated liquidity and footprint-style metrics for each bar
+
+This layer acts as the structural market-memory engine of the framework.
+
+---
+
+### 2. `EislerDiagnostics`
+This indicator is designed for **runtime inspection and debugging**.
+
+Its role includes:
+- reading internal state from the custom BarsType
+- plotting selected metrics
+- showing a text-based diagnostic panel
+- validating that the correct custom BarsType is active
+- exposing flow, memory, absorption, trap, sweep, refill and resilience-related values
+
+This layer is mainly intended for validation, tuning, and visual inspection.
+
+---
+
+### 3. `eisler950ALLDAY`
+This is the strategy layer that executes the trading logic.
+
+Its role includes:
+- processing the original Eisler-style event-impact model
+- handling regime detection and predictive features
+- generating entry decisions
+- applying latency and jitter filters
+- managing entry confirmation and refill-trap gating
+- executing the extended risk engine
+- exporting trade lifecycle data
+
+This layer remains the active strategy engine, but now sits on top of a much richer internal infrastructure.
+
+---
+
+## Files
+
+### `eisler.cs`
+Contains the custom `EislerBarType` and its underlying data structures.
+
+Main responsibilities:
+- price-level memory
+- footprint-like aggregation
+- sweep/refill/absorption/trap detection
+- derived liquidity metrics
+- persistent order-flow state across bars
+
+---
+
+### `EislerDiagnostics.cs`
+Contains the diagnostics indicator used to inspect the runtime state of the framework.
+
+Main responsibilities:
+- reading bar-type internals
+- plotting selected values
+- rendering a diagnostics panel
+- exposing debug information in chart context
+
+---
+
+### `eislerstrategy.cs`
+Contains the upgraded strategy implementation (`eisler950ALLDAY`).
+
+Main responsibilities:
+- event-impact prediction logic
+- RLS model update and prediction
+- latency/jitter-aware entry gating
+- dynamic sizing
+- trade execution
+- advanced risk exit handling
+- CSV export of lifecycle data
+
+---
+
+## Usage / Notes
+
+- This framework is designed for **NinjaTrader 8**.
+- It is intended for use with **Volumetric bars** and **L1 Bid/Ask/Last data**.
+- It does **not** depend on Level II / `OnMarketDepth()`.
+- For historical testing and replay, **Tick Replay** is recommended.
+- The strategy is best understood as an **extended research / execution framework**, not just a single standalone strategy file.
+- The diagnostics indicator is strongly recommended during setup and validation, especially when testing the custom BarsType.
+- The upgraded strategy includes significantly more execution and risk-control logic than the original base version, so behavior may differ materially from the old `eisler950` even when the predictive core remains conceptually similar.
+- CSV export and diagnostics output make this version much better suited for post-trade analysis and iterative refinement.
+
+---
+
+## Summary
+
+This project extends the original `eisler950` from a single-file strategy into a more complete order-flow framework.
+
+The core predictive idea remains the same, but the implementation has been expanded with:
+
+- a custom stateful BarsType
+- persistent price-level memory
+- a dedicated diagnostics layer
+- a more advanced execution and risk engine
+- and richer trade lifecycle logging
+
+The result is a more modular, observable, and robust framework for experimentation, validation, and further development.
