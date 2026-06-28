@@ -2,6 +2,7 @@
 Advanced event-impact algorithmic trading strategy for NinjaTrader 8. Features dynamic regime switching, recursive least squares (RLS) gap correction, and latency-protected automated execution using C# and NQ volumetric order flow.
 
 # NinjaTrader 8: Enhanced Eisler Event-Impact Strategy
+<img width="2816" height="1536" alt="nt8" src="https://github.com/user-attachments/assets/941027e9-5593-45aa-a985-d6e6e4c00b80" />
 
 This repository contains an advanced algorithmic trading strategy for NinjaTrader 8. It implements an enhanced Eisler-style event-impact model designed for high-frequency data environments, operating entirely without Level II (MarketDepth) dependencies. 
 
