@@ -15,7 +15,7 @@ The strategy is designed for advanced research into short-horizon order-flow pre
 
 # 📊 Empirical Performance & Lifecycle Statistics
 
-Based on detailed historical validation logs extracted directly from `v7_4(09.15-11.30)eisler_trade_lifecycle_20260617_173239.csv`, the execution model exhibits structural regime-dependency. Testing showcases a massive performance window in the autumn of 2025, while remaining exceptionally stable, protective of capital, and overall non-loss-making during baseline market environments.
+Based on detailed historical validation logs extracted directly from `v7_4(09.15-11.30)eisler_trade_lifecycle_20260617_173239.csv`, the execution model exhibits structural regime-dependency. Testing showcases a massive performance window in the autumn of 2025, while remaining exceptionally stable, protective of capital, and overall non-loss-making during baseline market environments. https://github.com/elodfarkas/NT8-Eisler-Impact-Model/blob/V4-Eisler_AdaptiveEdge_v7_4/v7_4(09.15-11.30)eisler_trade_lifecycle_20260617_173239.csv
 
 ### Key Performance Analytics
 * **Total Executed Trades:** 318
