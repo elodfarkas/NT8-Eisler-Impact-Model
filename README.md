@@ -151,7 +151,7 @@ While the V15 framework achieves ultra-fast mathematical optimization and seamle
 
 ---
 
-## 📚 References & Academic Foundation
+## References & Academic Foundation
 
 The core logic of this strategy is heavily inspired by quantitative research on market microstructure, specifically analyzing how order book events (market orders, limit orders, and cancellations) impact prices.
 * **Primary Literature:** Eisler, Z., Bouchaud, J.-P., & Kockelkoren, J. (2010). *The price impact of order book events: market orders, limit orders and cancellations*. Quantitative Finance. [arXiv:0904.0900](https://arxiv.org/abs/0904.0900)
