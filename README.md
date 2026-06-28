@@ -32,8 +32,7 @@ graph TD
 
 ## Demonstration & Framework Overview
 
-Az alábbi képre kattintva megtekinthető a rendszer működését bemutató videó:
-
+Youtube video:
 <p align="center">
   <a href="https://www.youtube.com/watch?v=bfsAselzvJ0">
     <img src="https://img.youtube.com/vi/bfsAselzvJ0/maxresdefault.jpg" alt="Eisler Model Video" width="560">
